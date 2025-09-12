@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Bias Analysis Results - {{ results.dataset_info.filename }}{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="h3 mb-2">
+                                <i class="fas fa-chart-line me-2 text-primary"></i>
+                                Bias Analysis Results
+                            </h1>
+                            <p class="text-muted mb-0">
+                                Dataset: <strong>{{ results.dataset_info.filename }}</strong> | 
+                                Generated: {{ results.timestamp[:19] | replace('T', ' ') }}
+                            </p>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('download_report', session_id=session_id) }}" 
+                               class="btn btn-danger">
+                                <i class="fas fa-file-pdf me-2"></i>Download PDF Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Assessment Card -->
+    <div class="row mb-4">
+        <div class="col">
+            {% set risk = results.ai_analysis.risk_level %}
+            {% set bias_score = results.ai_analysis.bias_score %}
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <h2 class="h4 mb-3">Overall Risk Assessment</h2>
+                    
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="risk-level-badge 
+                                {{ 'bg-danger' if risk == 'CRITICAL' else
+                                   'bg-warning' if risk == 'HIGH' else
+                                   'bg-info' if risk == 'MEDIUM' else
+                                   'bg-primary' if risk == 'LOW' else
+                                   'bg-success' }} text-white p-3 rounded">
+                                <h3 class="mb-1">{{ risk }}</h3>
+                                <small>Risk Level</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="bias-score">
+                                <div class="display-4 fw-bold text-primary">{{ "%.3f"|format(bias_score) }}</div>
+                                <small class="text-muted">Bias Score (0-1)</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="violations-count">
+                                <div class="display-4 fw-bold text-warning">{{ results.fairness_violations|length }}</div>
+                                <small class="text-muted">Fairness Violations</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dataset Overview -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-database me-2"></i>Dataset Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stat-item mb-3">
+                                <div class="h4 text-primary mb-0">{{ "{:,}".format(results.summary.total_records) }}</div>
+                                <small class="text-muted">Total Records</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-item mb-3">
+                                <div class="h4 text-success mb-0">{{ results.dataset_info.columns|length }}</div>
+                                <small class="text-muted">Total Columns</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <p class="mb-2"><strong>Target Variable:</strong> {{ results.summary.target_variable }}</p>
+                            <p class="mb-0">
+                                <strong>Protected Attributes:</strong> 
+                                {% for attr in results.summary.protected_attributes %}
+                                    <span class="badge bg-secondary me-1">{{ attr }}</span>
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>AI Analysis Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="ai-summary">
+                        {% set ai_text = results.ai_analysis.ai_analysis %}
+                        {% if ai_text %}
+                            {% set sentences = ai_text.split('.')[:3] %}
+                            <p>{{ sentences[0] }}. {{ sentences[1] if sentences|length > 1 else '' }}.</p>
+                            {% if sentences|length > 2 %}
+                                <p class="mb-0">{{ sentences[2] }}.</p>
+                            {% endif %}
+                        {% else %}
+                            <p>No AI analysis available.</p>
+                        {% endif %}
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-brain me-1"></i>Powered by {{ results.ai_analysis.model_used }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Bias Analysis -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-microscope me-2"></i>Detailed Bias Analysis</h5>
+                </div>
+                <div class="card-body">
+                    {% for attr, metrics in results.bias_metrics.items() %}
+                    <div class="attribute-analysis mb-4">
+                        <h6 class="text-primary border-bottom pb-2">{{ attr.upper() }} Analysis</h6>
+                        
+                        <!-- Group Statistics Table -->
+                        <div class="table-responsive mb-3">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Group</th>
+                                        <th>Sample Size</th>
+                                        <th>Positive Rate</th>
+                                        <th>Representation</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for group, stats in metrics.groups.items() %}
+                                    <tr>
+                                        <td><strong>{{ group }}</strong></td>
+                                        <td>{{ "{:,}".format(stats.group_size) }}</td>
+                                        <td>
+                                            <span class="badge {{ 'bg-success' if stats.positive_rate > 0.6 else 'bg-warning' if stats.positive_rate > 0.4 else 'bg-danger' }}">
+                                                {{ "{:.1%}".format(stats.positive_rate) }}
+                                            </span>
+                                        </td>
+                                        <td>{{ "{:.1%}".format(stats.representation) }}</td>
+                                        <td>
+                                            {% if stats.sample_adequacy == 'adequate' %}
+                                                <i class="fas fa-check-circle text-success" title="Adequate sample size"></i>
+                                            {% else %}
+                                                <i class="fas fa-exclamation-triangle text-warning" title="Small sample size"></i>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Disparity Metrics -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="metric-card p-3 bg-light rounded">
+                                    <h6 class="mb-2">Statistical Parity Difference</h6>
+                                    <div class="h5 {{ 'text-danger' if metrics.disparities.statistical_parity_difference > 0.2 else 'text-warning' if metrics.disparities.statistical_parity_difference > 0.1 else 'text-success' }}">
+                                        {{ "{:.1%}".format(metrics.disparities.statistical_parity_difference) }}
+                                    </div>
+                                    <small class="text-muted">Lower is better (≤10% ideal)</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="metric-card p-3 bg-light rounded">
+                                    <h6 class="mb-2">Demographic Parity Ratio</h6>
+                                    <div class="h5 {{ 'text-success' if metrics.disparities.demographic_parity_ratio >= 0.8 else 'text-warning' if metrics.disparities.demographic_parity_ratio >= 0.6 else 'text-danger' }}">
+                                        {{ "{:.3f}".format(metrics.disparities.demographic_parity_ratio) }}
+                                    </div>
+                                    <small class="text-muted">Higher is better (≥0.8 ideal)</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Fairness Assessment -->
+                        <div class="fairness-assessment mt-3 p-3 bg-{{ 'success' if metrics.fairness_metrics.passes_80_percent_rule else 'danger' }} bg-opacity-10 rounded">
+                            <h6 class="mb-2">
+                                <i class="fas fa-{{ 'check-circle' if metrics.fairness_metrics.passes_80_percent_rule else 'times-circle' }} me-2"></i>
+                                80% Rule Assessment
+                            </h6>
+                            <p class="mb-0">
+                                {% if metrics.fairness_metrics.passes_80_percent_rule %}
+                                    <span class="text-success">✓ Passes</span> - The minimum positive rate is within 80% of the maximum rate
+                                {% else %}
+                                    <span class="text-danger">✗ Fails</span> - Significant disparity detected between groups
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if not loop.last %}<hr>{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fairness Violations -->
+    {% if results.fairness_violations %}
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-danger shadow-sm">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Fairness Violations ({{ results.fairness_violations|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for violation in results.fairness_violations %}
+                    <div class="alert alert-{{ 'danger' if violation.severity == 'high' else 'warning' }} d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-{{ 'exclamation-circle' if violation.severity == 'high' else 'exclamation-triangle' }} fa-2x me-3"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">
+                                {{ violation.type.replace('_', ' ').title() }}
+                                <span class="badge bg-{{ 'danger' if violation.severity == 'high' else 'warning' }} ms-2">
+                                    {{ violation.severity.upper() }}
+                                </span>
+                            </h6>
+                            <p class="mb-1"><strong>Attribute:</strong> {{ violation.attribute }}</p>
+                            <p class="mb-0">{{ violation.description }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AI Expert Analysis -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="fas fa-brain me-2"></i>GPT-5 Nano Expert Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div class="ai-analysis-content">
+                        {% set ai_text = results.ai_analysis.ai_analysis %}
+                        {% if ai_text %}
+                            {% for paragraph in ai_text.split('\n\n') %}
+                                {% if paragraph.strip() %}
+                                    <p>{{ paragraph.strip() }}</p>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No detailed AI analysis available.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Key Findings -->
+                    {% if results.ai_analysis.key_findings %}
+                    <div class="mt-4">
+                        <h6 class="text-primary">Key Findings:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for finding in results.ai_analysis.key_findings %}
+                            <li class="list-group-item border-0 px-0">
+                                <i class="fas fa-arrow-right text-primary me-2"></i>{{ finding }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Recommendations -->
+                    {% if results.ai_analysis.recommendations %}
+                    <div class="mt-4">
+                        <h6 class="text-success">Recommendations:</h6>
+                        <ul class="list-group list-group-flush">
+                            {% for rec in results.ai_analysis.recommendations %}
+                            <li class="list-group-item border-0 px-0">
+                                <i class="fas fa-lightbulb text-success me-2"></i>{{ rec }}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="row">
+        <div class="col text-center">
+            <a href="{{ url_for('download_report', session_id=session_id) }}" 
+               class="btn btn-danger btn-lg me-3">
+                <i class="fas fa-file-pdf me-2"></i>Download Full Report
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-upload me-2"></i>Analyze Another Dataset
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling for internal links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Add tooltips to elements with title attributes
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}
