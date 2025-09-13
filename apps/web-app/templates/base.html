@@ -4,39 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Bias Buster - AI Fairness Audit Platform{% endblock %}</title>
-    
-    <!-- Bootstrap 5.3 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-primary bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="fas fa-balance-scale me-2"></i>Bias Buster
+            <a class="navbar-brand text-white" href="{{ url_for('index') }}">
+                <i class="fas fa-balance-scale me-2"></i><strong>Bias Buster</strong>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="fas fa-home me-1"></i>Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about">
-                            <i class="fas fa-info-circle me-1"></i>About
-                        </a>
-                    </li>
-                </ul>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link text-white" href="{{ url_for('index') }}">
+                    <i class="fas fa-home me-1"></i>Home
+                </a>
+                <a class="nav-link text-white" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">
+                    <i class="fas fa-info-circle me-1"></i>About
+                </a>
             </div>
         </div>
     </nav>
@@ -46,8 +31,7 @@
         {% if messages %}
             <div class="container mt-3">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }} me-2"></i>
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -56,32 +40,71 @@
         {% endif %}
     {% endwith %}
 
-    <!-- Main Content -->
     <main>
         {% block content %}{% endblock %}
     </main>
 
+    <!-- About Modal -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-info-circle me-2"></i>About Bias Buster
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-target text-primary me-2"></i>Mission</h6>
+                            <p>Detect and eliminate AI bias to ensure fair and ethical artificial intelligence systems.</p>
+                            
+                            <h6><i class="fas fa-cogs text-success me-2"></i>Technology</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-robot text-warning me-2"></i>GPT-5 nano AI Analysis</li>
+                                <li><i class="fas fa-chart-line text-info me-2"></i>Advanced Statistical Methods</li>
+                                <li><i class="fas fa-file-pdf text-danger me-2"></i>Professional PDF Reports</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-shield-alt text-warning me-2"></i>What We Detect</h6>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-venus-mars me-2"></i>Gender Bias</li>
+                                <li><i class="fas fa-users me-2"></i>Racial Discrimination</li>
+                                <li><i class="fas fa-birthday-cake me-2"></i>Age Discrimination</li>
+                                <li><i class="fas fa-plus me-2"></i>Custom Attributes</li>
+                            </ul>
+                            
+                            <h6><i class="fas fa-graduation-cap text-primary me-2"></i>Built For</h6>
+                            <p class="small">OpenAI x NxtWave Buildathon 2025</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer -->
-    <footer class="bg-dark text-light py-4 mt-5">
+    <footer class="bg-dark text-white mt-5 py-4">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5><i class="fas fa-balance-scale me-2"></i>Bias Buster</h5>
-                    <p class="mb-0">AI Fairness Audit Platform powered by GPT-5 nano</p>
+                    <h6><i class="fas fa-balance-scale me-2"></i>Bias Buster</h6>
+                    <p class="small">AI Fairness Audit Platform powered by GPT-5 nano</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <p class="mb-0">&copy; 2025 Bias Buster Platform. All rights reserved.</p>
-                    <small class="text-muted">Built for OpenAI x NxtWave Buildathon</small>
+                    <p class="small mb-0">© 2025 Bias Buster Platform. All rights reserved.</p>
+                    <p class="small">Built for OpenAI x NxtWave Buildathon</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap 5.3 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

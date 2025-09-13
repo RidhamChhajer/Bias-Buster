@@ -1,50 +1,49 @@
 {% extends "base.html" %}
 
-{% block title %}Bias Buster - Upload Dataset for Analysis{% endblock %}
-
 {% block content %}
-<!-- Hero Section -->
-<div class="hero-section bg-gradient-primary text-white py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-3">
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Hero Section -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary mb-3">
                     <i class="fas fa-search me-3"></i>Detect AI Bias Instantly
                 </h1>
                 <p class="lead mb-4">
                     Upload your dataset and get comprehensive bias analysis powered by GPT-5 nano. 
                     Identify discrimination, assess fairness, and generate audit reports in minutes.
                 </p>
-                <div class="d-flex align-items-center mb-3">
-                    <i class="fas fa-robot text-warning me-2"></i>
-                    <span>Powered by GPT-5 nano AI Analysis</span>
-                </div>
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                    <span>Downloadable PDF Audit Reports</span>
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-robot text-warning me-2"></i>
+                            <span>GPT-5 nano Powered</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                            <span>PDF Audit Reports</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <i class="fas fa-comments text-success me-2"></i>
+                            <span>AI Chat Support</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6 text-center">
-                <div class="upload-illustration">
-                    <i class="fas fa-chart-line fa-8x text-white-50 mb-3"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Upload Section -->
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
+            <!-- Upload Form -->
             <div class="card shadow-lg border-0">
                 <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="card-title mb-0">
+                    <h3 class="mb-0">
                         <i class="fas fa-upload me-2"></i>Upload Dataset for Bias Analysis
                     </h3>
                 </div>
                 <div class="card-body p-4">
-                    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" id="uploadForm">
+                    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data">
                         
                         <!-- File Upload -->
                         <div class="mb-4">
@@ -59,65 +58,70 @@
                             </div>
                         </div>
 
-                        <!-- File Info Display -->
-                        <div id="fileInfo" class="mb-4" style="display: none;">
-                            <div class="alert alert-info">
-                                <h6><i class="fas fa-info-circle me-2"></i>File Information</h6>
-                                <div id="fileDetails"></div>
-                            </div>
-                        </div>
-
                         <!-- Protected Attributes -->
                         <div class="mb-4">
                             <label class="form-label fw-bold">
                                 <i class="fas fa-shield-alt me-2 text-warning"></i>Protected Attributes
                             </label>
                             <div class="form-text mb-3">
-                                Select demographic or sensitive attributes to analyze for bias (e.g., gender, race, age)
+                                Select demographic attributes to analyze for bias
                             </div>
                             
-                            <!-- Common protected attributes -->
                             <div class="row">
                                 <div class="col-md-6">
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="gender" id="attr_gender">
-                                        <label class="form-check-label" for="attr_gender">Gender</label>
+                                        <label class="form-check-label" for="attr_gender">
+                                            <i class="fas fa-venus-mars me-1"></i>Gender
+                                        </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="race" id="attr_race">
-                                        <label class="form-check-label" for="attr_race">Race/Ethnicity</label>
+                                        <label class="form-check-label" for="attr_race">
+                                            <i class="fas fa-users me-1"></i>Race/Ethnicity
+                                        </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="age" id="attr_age">
-                                        <label class="form-check-label" for="attr_age">Age</label>
+                                        <label class="form-check-label" for="attr_age">
+                                            <i class="fas fa-birthday-cake me-1"></i>Age
+                                        </label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="religion" id="attr_religion">
-                                        <label class="form-check-label" for="attr_religion">Religion</label>
+                                        <label class="form-check-label" for="attr_religion">
+                                            <i class="fas fa-pray me-1"></i>Religion
+                                        </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="nationality" id="attr_nationality">
-                                        <label class="form-check-label" for="attr_nationality">Nationality</label>
+                                        <label class="form-check-label" for="attr_nationality">
+                                            <i class="fas fa-flag me-1"></i>Nationality
+                                        </label>
                                     </div>
-                                    <div class="form-check">
+                                    <div class="form-check mb-2">
                                         <input class="form-check-input" type="checkbox" name="protected_attributes" 
                                                value="disability" id="attr_disability">
-                                        <label class="form-check-label" for="attr_disability">Disability Status</label>
+                                        <label class="form-check-label" for="attr_disability">
+                                            <i class="fas fa-wheelchair me-1"></i>Disability Status
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Custom attribute input -->
+                            <!-- Custom attributes -->
                             <div class="mt-3">
-                                <label for="custom_attributes" class="form-label">Custom Attributes:</label>
-                                <input type="text" class="form-control" id="custom_attributes" 
+                                <label for="custom_attributes" class="form-label">
+                                    <i class="fas fa-plus me-1"></i>Custom Attributes:
+                                </label>
+                                <input type="text" class="form-control" name="custom_attributes" id="custom_attributes" 
                                        placeholder="Enter comma-separated column names (e.g., income_level, education)">
                                 <div class="form-text">Specify additional columns from your dataset</div>
                             </div>
@@ -128,43 +132,48 @@
                             <label for="target_variable" class="form-label fw-bold">
                                 <i class="fas fa-target me-2 text-danger"></i>Target Variable
                             </label>
-                            <input type="text" class="form-control" id="target_variable" name="target_variable" 
+                            <input type="text" class="form-control form-control-lg" id="target_variable" name="target_variable" 
                                    placeholder="e.g., loan_approved, hired, admitted" required>
                             <div class="form-text">
-                                The outcome column you want to analyze for bias (decision or prediction column)
-                            </div>
-                        </div>
-
-                        <!-- Analysis Options -->
-                        <div class="mb-4">
-                            <div class="card border-light">
-                                <div class="card-body">
-                                    <h6 class="card-title">
-                                        <i class="fas fa-cog me-2"></i>Analysis Options
-                                    </h6>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="detailed_analysis" checked>
-                                        <label class="form-check-label" for="detailed_analysis">
-                                            Generate detailed AI analysis with GPT-5 nano
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="auto_pdf" checked>
-                                        <label class="form-check-label" for="auto_pdf">
-                                            Auto-generate PDF audit report
-                                        </label>
-                                    </div>
-                                </div>
+                                <i class="fas fa-question-circle me-1"></i>
+                                The outcome column you want to analyze for bias (the decision being made)
                             </div>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-analytics me-2"></i>Analyze Dataset for Bias
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Sample Data Section -->
+            <div class="mt-4">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-lightbulb me-2"></i>Need Test Data? Try Our Sample
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-2">Use this sample dataset to test the platform:</p>
+                        <div class="bg-light p-3 rounded">
+                            <code class="small">
+                                name,gender,age,experience,target,department<br>
+                                John,Male,25,2,1,Engineering<br>
+                                Sarah,Female,28,3,0,Engineering<br>
+                                Mike,Male,30,5,1,Engineering<br>
+                                Lisa,Female,26,2,0,Marketing
+                            </code>
+                        </div>
+                        <div class="mt-2">
+                            <strong>Settings:</strong> Protected Attributes: <span class="badge bg-secondary">gender</span>, 
+                            Target Variable: <span class="badge bg-danger">target</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,141 +181,78 @@
 </div>
 
 <!-- Features Section -->
-<div class="bg-light py-5">
+<div class="bg-light py-5 mt-5">
     <div class="container">
         <div class="row text-center mb-5">
             <div class="col">
                 <h2 class="display-6 fw-bold text-primary mb-3">Why Choose Bias Buster?</h2>
-                <p class="lead text-muted">Advanced AI-powered bias detection with comprehensive reporting</p>
+                <p class="lead">The most advanced AI bias detection platform available</p>
             </div>
         </div>
         
         <div class="row g-4">
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-primary text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-robot fa-2x"></i>
-                        </div>
-                        <h5 class="card-title">GPT-5 Nano Powered</h5>
-                        <p class="card-text">Advanced AI analysis provides human-readable insights and actionable recommendations</p>
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-robot fa-3x text-primary mb-3"></i>
+                        <h5>GPT-5 Nano Powered</h5>
+                        <p>Advanced AI analysis with human-readable insights and expert recommendations</p>
                     </div>
                 </div>
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-success text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-chart-bar fa-2x"></i>
-                        </div>
-                        <h5 class="card-title">Comprehensive Metrics</h5>
-                        <p class="card-text">Statistical parity, demographic parity, equality of odds, and more fairness metrics</p>
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-chart-bar fa-3x text-success mb-3"></i>
+                        <h5>Comprehensive Metrics</h5>
+                        <p>Statistical parity, demographic parity, 80% rule, and advanced fairness metrics</p>
                     </div>
                 </div>
             </div>
             
             <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="feature-icon bg-danger text-white rounded-circle mx-auto mb-3">
-                            <i class="fas fa-file-pdf fa-2x"></i>
-                        </div>
-                        <h5 class="card-title">Professional Reports</h5>
-                        <p class="card-text">Download comprehensive PDF audit reports for compliance and documentation</p>
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                        <h5>Professional Reports</h5>
+                        <p>Download comprehensive PDF audit reports for compliance and stakeholder review</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mt-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-comments fa-3x text-info mb-3"></i>
+                        <h5>Interactive Chat</h5>
+                        <p>Ask questions about your results and get expert explanations in real-time</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
+                        <h5>Legal Compliance</h5>
+                        <p>Ensure compliance with anti-discrimination laws and regulatory requirements</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center hover-card">
+                    <div class="card-body p-4">
+                        <i class="fas fa-bolt fa-3x text-primary mb-3"></i>
+                        <h5>Real-time Analysis</h5>
+                        <p>Get instant bias analysis results with clear risk assessments and actionable insights</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Loading Modal -->
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center p-4">
-                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <h5>Analyzing Dataset for Bias...</h5>
-                <p class="mb-0">This may take a few moments while GPT-5 nano processes your data.</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('file');
-    const fileInfo = document.getElementById('fileInfo');
-    const fileDetails = document.getElementById('fileDetails');
-    const uploadForm = document.getElementById('uploadForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const customAttributes = document.getElementById('custom_attributes');
-    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
-
-    // File upload handling
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-            const fileType = file.name.split('.').pop().toUpperCase();
-            
-            fileDetails.innerHTML = `
-                <strong>Filename:</strong> ${file.name}<br>
-                <strong>Size:</strong> ${fileSize} MB<br>
-                <strong>Type:</strong> ${fileType}<br>
-                <strong>Last Modified:</strong> ${new Date(file.lastModified).toLocaleString()}
-            `;
-            fileInfo.style.display = 'block';
-        }
-    });
-
-    // Custom attributes handling
-    customAttributes.addEventListener('blur', function() {
-        const customAttrs = this.value.split(',').map(s => s.trim()).filter(s => s);
-        
-        // Remove existing custom checkboxes
-        document.querySelectorAll('.custom-attr-check').forEach(el => el.remove());
-        
-        // Add new custom checkboxes
-        customAttrs.forEach(attr => {
-            const div = document.createElement('div');
-            div.className = 'form-check custom-attr-check';
-            div.innerHTML = `
-                <input class="form-check-input" type="checkbox" name="protected_attributes" 
-                       value="${attr}" id="attr_custom_${attr}" checked>
-                <label class="form-check-label" for="attr_custom_${attr}">${attr}</label>
-            `;
-            customAttributes.parentNode.insertBefore(div, customAttributes.parentNode.lastElementChild);
-        });
-    });
-
-    // Form submission handling
-    uploadForm.addEventListener('submit', function(e) {
-        const selectedAttrs = document.querySelectorAll('input[name="protected_attributes"]:checked');
-        const targetVar = document.getElementById('target_variable').value.trim();
-        
-        if (selectedAttrs.length === 0) {
-            e.preventDefault();
-            alert('Please select at least one protected attribute to analyze.');
-            return;
-        }
-        
-        if (!targetVar) {
-            e.preventDefault();
-            alert('Please specify the target variable for analysis.');
-            return;
-        }
-        
-        // Show loading modal
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Analyzing...';
-        loadingModal.show();
-    });
-});
-</script>
 {% endblock %}

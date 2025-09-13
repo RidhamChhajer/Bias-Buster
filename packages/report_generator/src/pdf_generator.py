@@ -50,56 +50,56 @@ class PDFReportGenerator:
             'CRITICAL': ParagraphStyle(
                 'CriticalRisk',
                 parent=self.styles['Normal'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#dc3545'),
                 backColor=colors.HexColor('#f8d7da'),
                 borderColor=colors.HexColor('#dc3545'),
-                borderWidth=1,
-                borderPadding=10,
+                borderWidth=2,
+                borderPadding=15,
                 alignment=TA_CENTER
             ),
             'HIGH': ParagraphStyle(
                 'HighRisk',
                 parent=self.styles['Normal'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#fd7e14'),
                 backColor=colors.HexColor('#fff3cd'),
                 borderColor=colors.HexColor('#fd7e14'),
-                borderWidth=1,
-                borderPadding=10,
+                borderWidth=2,
+                borderPadding=15,
                 alignment=TA_CENTER
             ),
             'MEDIUM': ParagraphStyle(
                 'MediumRisk',
                 parent=self.styles['Normal'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#ffc107'),
                 backColor=colors.HexColor('#fff9e6'),
                 borderColor=colors.HexColor('#ffc107'),
-                borderWidth=1,
-                borderPadding=10,
+                borderWidth=2,
+                borderPadding=15,
                 alignment=TA_CENTER
             ),
             'LOW': ParagraphStyle(
                 'LowRisk',
                 parent=self.styles['Normal'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#17a2b8'),
                 backColor=colors.HexColor('#e6f7ff'),
                 borderColor=colors.HexColor('#17a2b8'),
-                borderWidth=1,
-                borderPadding=10,
+                borderWidth=2,
+                borderPadding=15,
                 alignment=TA_CENTER
             ),
             'MINIMAL': ParagraphStyle(
                 'MinimalRisk',
                 parent=self.styles['Normal'],
-                fontSize=14,
+                fontSize=16,
                 textColor=colors.HexColor('#28a745'),
                 backColor=colors.HexColor('#d4edda'),
                 borderColor=colors.HexColor('#28a745'),
-                borderWidth=1,
-                borderPadding=10,
+                borderWidth=2,
+                borderPadding=15,
                 alignment=TA_CENTER
             )
         }
@@ -121,8 +121,8 @@ class PDFReportGenerator:
             # Build report content
             story = []
             
-            # Title page
-            story.extend(self._create_title_page(analysis_data))
+            # Title page with clear verdict
+            story.extend(self._create_enhanced_title_page(analysis_data))
             
             # Executive summary
             story.extend(self._create_executive_summary(analysis_data))
@@ -151,8 +151,8 @@ class PDFReportGenerator:
             print(f"Error generating PDF report: {str(e)}")
             return False
     
-    def _create_title_page(self, data: Dict) -> List:
-        """Create title page"""
+    def _create_enhanced_title_page(self, data: Dict) -> List:
+        """Create title page with clear bias verdict"""
         story = []
         
         # Main title
@@ -168,7 +168,10 @@ class PDFReportGenerator:
         
         # Report metadata
         timestamp = data.get('timestamp', datetime.now().isoformat())
-        formatted_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00')).strftime('%B %d, %Y at %I:%M %p')
+        try:
+            formatted_date = datetime.fromisoformat(timestamp.replace('Z', '+00:00')).strftime('%B %d, %Y at %I:%M %p')
+        except:
+            formatted_date = timestamp
         
         story.append(Paragraph(f"<b>Generated:</b> {formatted_date}", self.styles['Normal']))
         story.append(Paragraph(f"<b>Analysis Engine:</b> Bias Buster Platform", self.styles['Normal']))
@@ -179,16 +182,41 @@ class PDFReportGenerator:
         
         story.append(Spacer(1, 40))
         
-        # Risk level prominently displayed
-        risk_assessment = data.get('ai_analysis', {}).get('risk_level', 'UNKNOWN')
-        bias_score = data.get('ai_analysis', {}).get('bias_score', 0.0)
+        # CLEAR BIAS VERDICT - ENHANCED VERSION
+        risk_assessment = ai_analysis.get('risk_level', 'UNKNOWN')
+        bias_score = ai_analysis.get('bias_score', 0.0)
+        violations_count = len(data.get('fairness_violations', []))
+        
+        # Create clear verdict message
+        verdict_messages = {
+            'CRITICAL': f"🚨 SEVERE BIAS DETECTED - IMMEDIATE ACTION REQUIRED",
+            'HIGH': f"⚠️ SIGNIFICANT BIAS FOUND - MITIGATION NEEDED",
+            'MEDIUM': f"⚠️ MODERATE BIAS DETECTED - IMPROVEMENTS RECOMMENDED", 
+            'LOW': f"✅ MINOR BIAS FOUND - MONITORING SUGGESTED",
+            'MINIMAL': f"✅ MINIMAL BIAS - SYSTEM APPEARS FAIR"
+        }
+        
+        verdict = verdict_messages.get(risk_assessment, "❓ ANALYSIS INCOMPLETE")
         
         risk_style = self.risk_styles.get(risk_assessment, self.styles['Normal'])
-        story.append(Paragraph(
-            f"<b>OVERALL RISK LEVEL: {risk_assessment}</b><br/>Bias Score: {bias_score:.3f}",
-            risk_style
-        ))
+        story.append(Paragraph(f"<b>{verdict}</b>", risk_style))
+        story.append(Spacer(1, 20))
         
+        # Detailed explanation box
+        explanation_text = f"""
+        <b>WHAT THIS MEANS:</b><br/>
+        • Bias Score: {bias_score:.3f} out of 1.0 (higher = more biased)<br/>
+        • Fairness Violations: {violations_count} issues detected<br/>
+        • Risk Level: {risk_assessment}<br/><br/>
+        
+        <b>SIMPLE EXPLANATION:</b><br/>
+        {"Your system shows clear signs of unfair treatment between different groups. This could lead to discrimination and legal issues." if risk_assessment in ['CRITICAL', 'HIGH'] else
+         "Your system shows some signs of unfair treatment that should be addressed." if risk_assessment == 'MEDIUM' else
+         "Your system appears mostly fair with minor issues to monitor." if risk_assessment == 'LOW' else
+         "Your system appears to treat different groups fairly."}
+        """
+        
+        story.append(Paragraph(explanation_text, self.styles['Normal']))
         story.append(PageBreak())
         return story
     
@@ -274,7 +302,7 @@ class PDFReportGenerator:
         """Create detailed bias analysis section"""
         story = []
         
-        story.append(Paragraph("BIAS ANALYSIS RESULTS", self.subtitle_style))
+        story.append(Paragraph("DETAILED BIAS ANALYSIS", self.subtitle_style))
         
         bias_metrics = data.get('bias_metrics', {})
         
@@ -283,17 +311,19 @@ class PDFReportGenerator:
             
             # Group statistics
             groups = metrics.get('groups', {})
-            group_data = [['Group', 'Sample Size', 'Positive Rate', 'Representation']]
+            group_data = [['Group', 'Sample Size', 'Positive Rate', 'Representation', 'Status']]
             
             for group, stats in groups.items():
+                status = '✓ Good' if stats.get('sample_adequacy') == 'adequate' else '⚠ Small'
                 group_data.append([
                     group,
                     f"{stats.get('group_size', 0):,}",
                     f"{stats.get('positive_rate', 0):.1%}",
-                    f"{stats.get('representation', 0):.1%}"
+                    f"{stats.get('representation', 0):.1%}",
+                    status
                 ])
             
-            group_table = Table(group_data, colWidths=[1.2*inch, 1.2*inch, 1.2*inch, 1.2*inch])
+            group_table = Table(group_data, colWidths=[1.2*inch, 1*inch, 1*inch, 1*inch, 0.8*inch])
             group_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#34495e')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
@@ -308,11 +338,37 @@ class PDFReportGenerator:
             story.append(group_table)
             story.append(Spacer(1, 15))
             
-            # Disparity metrics
+            # Bias metrics summary
             disparities = metrics.get('disparities', {})
-            story.append(Paragraph(f"<b>Disparity Metrics:</b>", self.styles['Normal']))
-            story.append(Paragraph(f"Statistical Parity Difference: {disparities.get('statistical_parity_difference', 0):.1%}", self.styles['Normal']))
-            story.append(Paragraph(f"Demographic Parity Ratio: {disparities.get('demographic_parity_ratio', 0):.3f}", self.styles['Normal']))
+            fairness_metrics = metrics.get('fairness_metrics', {})
+            
+            metrics_data = [
+                ['Fairness Metric', 'Value', 'Status'],
+                ['Statistical Parity Difference', f"{disparities.get('statistical_parity_difference', 0):.1%}", 
+                 '✅ PASS' if disparities.get('statistical_parity_difference', 0) <= 0.1 else '❌ FAIL'],
+                ['Demographic Parity Ratio', f"{disparities.get('demographic_parity_ratio', 0):.3f}",
+                 '✅ PASS' if fairness_metrics.get('passes_80_percent_rule', False) else '❌ FAIL'],
+                ['80% Rule Test', 'PASS' if fairness_metrics.get('passes_80_percent_rule', False) else 'FAIL',
+                 '✅' if fairness_metrics.get('passes_80_percent_rule', False) else '❌'],
+                ['Bias Severity', fairness_metrics.get('bias_severity', 'Unknown').title(),
+                 '🟢' if fairness_metrics.get('bias_severity') == 'minimal' else 
+                 '🟡' if fairness_metrics.get('bias_severity') == 'low' else
+                 '🟠' if fairness_metrics.get('bias_severity') == 'moderate' else '🔴']
+            ]
+            
+            metrics_table = Table(metrics_data, colWidths=[2*inch, 1.5*inch, 1*inch])
+            metrics_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#17a2b8')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0f8ff')),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            story.append(metrics_table)
             story.append(Spacer(1, 20))
         
         # Violations summary
@@ -370,24 +426,23 @@ class PDFReportGenerator:
         """Create recommendations section"""
         story = []
         
-        story.append(Paragraph("RECOMMENDATIONS", self.subtitle_style))
+        story.append(Paragraph("ACTIONABLE RECOMMENDATIONS", self.subtitle_style))
         
         ai_analysis = data.get('ai_analysis', {})
         recommendations = ai_analysis.get('recommendations', [])
         
         if recommendations:
+            story.append(Paragraph("<b>AI-Generated Recommendations:</b>", self.styles['Heading3']))
             for i, rec in enumerate(recommendations, 1):
                 story.append(Paragraph(f"<b>{i}.</b> {rec}", self.styles['Normal']))
                 story.append(Spacer(1, 10))
-        else:
-            story.append(Paragraph("No specific recommendations available.", self.styles['Normal']))
         
         # General recommendations based on risk level
         risk_level = ai_analysis.get('risk_level', 'UNKNOWN')
         general_rec = self._get_general_recommendations(risk_level)
         
         if general_rec:
-            story.append(Paragraph("<b>General Recommendations:</b>", self.styles['Heading3']))
+            story.append(Paragraph("<b>Expert Recommendations:</b>", self.styles['Heading3']))
             story.append(Paragraph(general_rec, self.styles['Normal']))
         
         story.append(Spacer(1, 20))
@@ -405,9 +460,9 @@ class PDFReportGenerator:
             ['Detail', 'Value'],
             ['Analysis Timestamp', data.get('timestamp', 'Unknown')],
             ['AI Model Used', ai_analysis.get('model_used', 'Unknown')],
-            ['Parameters Used', str(ai_analysis.get('parameters_used', {}))],
             ['Token Usage', str(ai_analysis.get('token_usage', 'N/A'))],
-            ['Session ID', data.get('session_id', 'Unknown')]
+            ['Session ID', data.get('session_id', 'Unknown')],
+            ['Platform Version', 'Bias Buster v1.0']
         ]
         
         tech_table = Table(tech_data, colWidths=[2*inch, 3*inch])
@@ -453,7 +508,7 @@ class PDFReportGenerator:
         """Get colored risk level indicator"""
         colors_map = {
             'CRITICAL': '🔴 Critical',
-            'HIGH': '🟠 High', 
+            'HIGH': '🟠 High',
             'MEDIUM': '🟡 Medium',
             'LOW': '🔵 Low',
             'MINIMAL': '🟢 Minimal'
