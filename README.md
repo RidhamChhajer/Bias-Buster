@@ -37,8 +37,8 @@ AI bias in hiring, lending, and decision-making systems causes real-world discri
 ### Installation
 
 1. **Clone the repository**
-git clone https://github.com/yourusername/bias-buster-platform.git
-cd bias-buster-platform
+git clone https://github.com/yourusername/bias-buster.git
+cd bias-buster
 
 text
 
